@@ -8,11 +8,15 @@ A search system designed for locating files through keyword searches, where the 
 
 Clone this repository by running
 
-`git clone git@github.com:ananduremanan/File-Search.git`
+```bash
+git clone git@github.com:ananduremanan/File-Search.git
+```
 
 Run the project by
 
-`npm start`
+```bash
+npm start
+```
 
 ### Time Took for processing
 
