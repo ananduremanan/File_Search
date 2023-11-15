@@ -8,7 +8,7 @@ A search system designed for locating files through keyword searches, where the 
 
 Clone this repository by running
 
-```git clone```
+```git clone git@github.com:ananduremanan/File-Search.git```
 
 Run the project by
 
