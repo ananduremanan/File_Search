@@ -10,13 +10,14 @@ const Uploader = () => {
   const handleFileChange = (event: any) => {
     const file = event.target.files[0];
     if (file) {
-      if (file.type === "application/pdf") {
-        setSelectedFile(file);
-        setError("");
-      } else {
-        setSelectedFile(null);
-        setError("Please select a valid PDF file.");
-      }
+      // if (file.type === "application/pdf") {
+      //   setSelectedFile(file);
+      //   setError("");
+      // } else {
+      //   setSelectedFile(null);
+      //   setError("Please select a valid PDF file.");
+      // }
+      setSelectedFile(file);
     }
   };
 

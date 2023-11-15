@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 // Multer is for Storage
 const upload = multer({ storage: storage });
 
-// ***** Tesseract logic starts here *****
+// Tesseract logic
 app.post("/upload", upload.single("file"), async (req, res) => {
   const worker = await createWorker("eng");
   try {
@@ -55,6 +55,7 @@ app.post("/upload", upload.single("file"), async (req, res) => {
         data: { text },
       } = await worker.recognize(imagePath);
       finalText += text + "\n";
+      fs.unlinkSync(imagePath); // Delete the image after OCR
     }
 
     await worker.terminate();
@@ -77,7 +78,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       );
   }
 });
-// ***** Tesseract logic ends here *****
 
 app.get("/download", function (req, res) {
   const file = `${__dirname}/uploads/${req.query.filename}`;
