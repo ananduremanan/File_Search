@@ -1,0 +1,22 @@
+{
+  "name": "localindexing",
+  "version": "1.0.0",
+  "description": "Node Based File Search",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "concurrently \"npm run api\" \"npm run client\"",
+    "api": "cd API && npm start",
+    "client": "cd client && npm run dev"
+  },
+  "keywords": [
+    "search",
+    "node",
+    "react"
+  ],
+  "author": "Anandhu Remanan",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
