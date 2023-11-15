@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const multer = require("multer");
-const pdfParse = require("pdf-parse");
 const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
@@ -79,32 +78,6 @@ app.post("/upload", upload.single("file"), async (req, res) => {
   }
 });
 // ***** Tesseract logic ends here *****
-
-// app.post("/upload", upload.single("file"), async (req, res) => {
-//   console.log(req.file);
-
-//   try {
-//     let dataBuffer = fs.readFileSync(req.file.path);
-//     let data = await pdfParse(dataBuffer);
-
-//     // Save the extracted text to a new .txt file
-//     await fs.promises.writeFile(
-//       `./uploads/${req.file.originalname}.txt`,
-//       data.text
-//     );
-//     console.log("Text extracted and saved successfully.");
-//     res.send(
-//       `File uploaded and text extracted successfully. The text file is saved as ${req.file.originalname}.txt.`
-//     );
-//   } catch (error) {
-//     console.error(error);
-//     res
-//       .status(500)
-//       .send(
-//         "An error occurred while extracting text from the PDF or saving the extracted text to a file."
-//       );
-//   }
-// });
 
 app.get("/download", function (req, res) {
   const file = `${__dirname}/uploads/${req.query.filename}`;
