@@ -6,6 +6,12 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
 
+// ***** Tesseract imports starts here *****
+const util = require("util");
+const pdfPoppler = require("pdf-poppler");
+const { createWorker } = require("tesseract.js");
+// ***** Tesseract imports ends here *****
+
 const app = express();
 app.use(cors());
 
@@ -21,21 +27,47 @@ const storage = multer.diskStorage({
 // Multer is for Storage
 const upload = multer({ storage: storage });
 
+// ***** Tesseract logic starts here *****
 app.post("/upload", upload.single("file"), async (req, res) => {
-  console.log(req.file);
-
+  const worker = await createWorker("eng");
   try {
-    let dataBuffer = fs.readFileSync(req.file.path);
-    let data = await pdfParse(dataBuffer);
+    const filePath = path.join(__dirname, req.file.path);
+    const imageDir = path.join(__dirname, "generatedimages");
+    fs.mkdirSync(imageDir, { recursive: true });
+    const opts = {
+      format: "jpeg",
+      out_dir: imageDir,
+      out_prefix: path.basename(filePath, path.extname(filePath)),
+      page: null,
+    };
 
-    // Save the extracted text to a new .txt file
-    await fs.promises.writeFile(
-      `./uploads/${req.file.originalname}.txt`,
-      data.text
+    await pdfPoppler.convert(filePath, opts);
+
+    const files = fs.readdirSync(opts.out_dir);
+    const images = files.filter(
+      (file) => file.includes(opts.out_prefix) && path.extname(file) === ".jpg"
     );
-    console.log("Text extracted and saved successfully.");
+    console.log(images);
+    let finalText = "";
+
+    for (const image of images) {
+      const imagePath = path.join(opts.out_dir, image);
+      const {
+        data: { text },
+      } = await worker.recognize(imagePath);
+      finalText += text + "\n";
+    }
+
+    await worker.terminate();
+
+    const textFilePath = path.join(
+      path.dirname(filePath),
+      `${opts.out_prefix}.txt`
+    );
+    await util.promisify(fs.writeFile)(textFilePath, finalText);
+
     res.send(
-      `File uploaded and text extracted successfully. The text file is saved as ${req.file.originalname}.txt.`
+      `File uploaded and text extracted successfully. The text file is saved as ${opts.out_prefix}.txt.`
     );
   } catch (error) {
     console.error(error);
@@ -46,6 +78,33 @@ app.post("/upload", upload.single("file"), async (req, res) => {
       );
   }
 });
+// ***** Tesseract logic ends here *****
+
+// app.post("/upload", upload.single("file"), async (req, res) => {
+//   console.log(req.file);
+
+//   try {
+//     let dataBuffer = fs.readFileSync(req.file.path);
+//     let data = await pdfParse(dataBuffer);
+
+//     // Save the extracted text to a new .txt file
+//     await fs.promises.writeFile(
+//       `./uploads/${req.file.originalname}.txt`,
+//       data.text
+//     );
+//     console.log("Text extracted and saved successfully.");
+//     res.send(
+//       `File uploaded and text extracted successfully. The text file is saved as ${req.file.originalname}.txt.`
+//     );
+//   } catch (error) {
+//     console.error(error);
+//     res
+//       .status(500)
+//       .send(
+//         "An error occurred while extracting text from the PDF or saving the extracted text to a file."
+//       );
+//   }
+// });
 
 app.get("/download", function (req, res) {
   const file = `${__dirname}/uploads/${req.query.filename}`;

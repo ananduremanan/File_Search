@@ -5,6 +5,7 @@ import { BiSolidCloudUpload } from "react-icons/bi";
 const Uploader = () => {
   const [selectedFile, setSelectedFile] = useState<any>(null);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleFileChange = (event: any) => {
     const file = event.target.files[0];
@@ -25,6 +26,7 @@ const Uploader = () => {
       formData.append("file", selectedFile);
 
       try {
+        setIsLoading(true);
         const response = await fetch("http://localhost:8080/upload", {
           method: "POST",
           body: formData,
@@ -36,6 +38,7 @@ const Uploader = () => {
         console.error("Error:", error);
       } finally {
         setSelectedFile(null);
+        setIsLoading(false);
       }
     }
   };
@@ -64,16 +67,16 @@ const Uploader = () => {
       />
       {selectedFile ? (
         <button
-          className="bg-violet-600 p-1 text-white rounded-lg mb-2 flex items-center cursor-pointer"
+          className="bg-violet-600 p-1 text-white rounded-lg mb-2 flex items-center cursor-pointer hover:bg-violet-800"
           onClick={handleUpload}
         >
           <BiSolidCloudUpload />
-          Upload
+          {isLoading ? "Uploading..." : "Upload"}
         </button>
       ) : (
         <label
           htmlFor="fileInput"
-          className="bg-violet-600 p-1 text-white rounded-lg mb-2 flex items-center cursor-pointer"
+          className="bg-violet-600 p-1 text-white rounded-lg mb-2 flex items-center cursor-pointer hover:bg-violet-800"
         >
           <AiOutlinePaperClip />
           Select File
