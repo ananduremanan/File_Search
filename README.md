@@ -20,5 +20,5 @@ Run the project by
 | ------------------------------- | ------------------ | ----- | ---------- | ----------- |
 | Convert 1 Page PDF (14 Words)   | 1.70 s             | 1     | 14         |             |
 | Convert 4 Page PDF (1880 Words) | 19.05 s            | 4     | 1880       |             |
-| Convert 4 Page PDF (Image)      | 13.10 s            | 4     | -          | Image Based |
-| Convert 618 Page PDF (Image)    | 15.01.44 (Minutes) | 618   | -          | Image Based |
+| Convert 4 Page PDF (Image)      | 13.10 s            | 4     | -          | Scanned PDF |
+| Convert 618 Page PDF (Image)    | 15.01.44 (Minutes) | 618   | -          | Scanned PDF |
