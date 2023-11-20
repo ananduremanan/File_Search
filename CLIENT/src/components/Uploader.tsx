@@ -10,14 +10,22 @@ const Uploader = () => {
   const handleFileChange = (event: any) => {
     const file = event.target.files[0];
     if (file) {
-      if (file.type === "application/pdf") {
+      const fileType = file.type;
+      if (
+        fileType === "application/pdf" ||
+        fileType ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        fileType ===
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+        fileType === "application/msword" ||
+        fileType === "application/vnd.ms-excel"
+      ) {
         setSelectedFile(file);
         setError("");
       } else {
         setSelectedFile(null);
-        setError("Please select a valid PDF file.");
+        setError("Please select a valid PDF, Word, or Excel file.");
       }
-      setSelectedFile(file);
     }
   };
 
@@ -61,7 +69,7 @@ const Uploader = () => {
       </span>
       <input
         type="file"
-        accept=".pdf"
+        accept=".pdf,.doc,.docx,.xls,.xlsx"
         id="fileInput"
         style={{ display: "none" }}
         onChange={handleFileChange}

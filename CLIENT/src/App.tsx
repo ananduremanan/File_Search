@@ -16,6 +16,7 @@ export default function App() {
           `http://localhost:8080/search?keyword=${searchParam}`
         );
         const data = await response.json();
+        console.log(data);
         setResults(data);
       } catch (error) {
         console.error(error);

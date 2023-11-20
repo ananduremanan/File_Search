@@ -1,6 +1,4 @@
+Monster DataBase
+“This DataWord is a pdf file for monster data base.
+DataBase is monster.
 
-
-Monster DataBase 
- 
-This DataWord is a pdf file for monster data base. 
-DataBase is monster.. 

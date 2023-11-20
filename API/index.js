@@ -5,11 +5,13 @@ const fs = require("fs");
 const path = require("path");
 require("dotenv").config();
 
-// ***** Tesseract imports starts here *****
+const mammoth = require("mammoth");
+const XLSX = require("xlsx");
+
+// Tesseract Imports
 const util = require("util");
 const pdfPoppler = require("pdf-poppler");
 const { createWorker } = require("tesseract.js");
-// ***** Tesseract imports ends here *****
 
 const app = express();
 app.use(cors());
@@ -28,54 +30,112 @@ const upload = multer({ storage: storage });
 
 // Tesseract logic
 app.post("/upload", upload.single("file"), async (req, res) => {
-  const worker = await createWorker("eng");
   try {
     const filePath = path.join(__dirname, req.file.path);
-    const imageDir = path.join(__dirname, "generatedimages");
-    fs.mkdirSync(imageDir, { recursive: true });
-    const opts = {
-      format: "jpeg",
-      out_dir: imageDir,
-      out_prefix: path.basename(filePath, path.extname(filePath)),
-      page: null,
-    };
-
-    await pdfPoppler.convert(filePath, opts);
-
-    const files = fs.readdirSync(opts.out_dir);
-    const images = files.filter(
-      (file) => file.includes(opts.out_prefix) && path.extname(file) === ".jpg"
-    );
-    console.log(images);
+    const fileType = req.file.mimetype;
     let finalText = "";
 
-    for (const image of images) {
-      const imagePath = path.join(opts.out_dir, image);
-      const {
-        data: { text },
-      } = await worker.recognize(imagePath);
-      finalText += text + "\n";
-      fs.unlinkSync(imagePath); // Delete the image after OCR
-    }
+    if (fileType === "application/pdf") {
+      const worker = await createWorker("eng");
+      try {
+        // const filePath = path.join(__dirname, req.file.path);
+        const imageDir = path.join(__dirname, "generatedimages");
+        fs.mkdirSync(imageDir, { recursive: true });
+        const opts = {
+          format: "jpeg",
+          out_dir: imageDir,
+          out_prefix: path.basename(filePath, path.extname(filePath)),
+          page: null,
+        };
 
-    await worker.terminate();
+        await pdfPoppler.convert(filePath, opts);
+
+        const files = fs.readdirSync(opts.out_dir);
+        const images = files.filter(
+          (file) =>
+            file.includes(opts.out_prefix) && path.extname(file) === ".jpg"
+        );
+        console.log(images);
+        // let finalText = "";
+
+        for (const image of images) {
+          const imagePath = path.join(opts.out_dir, image);
+          const {
+            data: { text },
+          } = await worker.recognize(imagePath);
+          finalText += text + "\n";
+          fs.unlinkSync(imagePath); // Delete the image after OCR
+        }
+
+        await worker.terminate();
+
+        console.log(opts.out_prefix);
+
+        const textFilePath = path.join(
+          path.dirname(filePath),
+          `${path.basename(filePath)}.txt`
+        );
+        await util.promisify(fs.writeFile)(textFilePath, finalText);
+
+        res.send(
+          `File uploaded and text extracted successfully. The text file is saved as ${opts.out_prefix}.txt.`
+        );
+        return;
+      } catch (error) {
+        console.error(error);
+        res
+          .status(500)
+          .send(
+            "An error occurred while extracting text from the PDF or saving the extracted text to a file."
+          );
+        return;
+      }
+    } else if (
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+      fileType === "application/msword"
+    ) {
+      // convert Word to text
+      const { value: text } = await mammoth.extractRawText({ path: filePath });
+      finalText = text;
+    } else if (
+      fileType ===
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      fileType === "application/vnd.ms-excel"
+    ) {
+      // convert Excel to text
+      const workbook = XLSX.readFile(filePath);
+      const sheetNames = workbook.SheetNames;
+      sheetNames.forEach((sheetName) => {
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        jsonData.forEach((row) => {
+          finalText += row.join(" ") + "\n";
+        });
+      });
+    }
 
     const textFilePath = path.join(
       path.dirname(filePath),
-      `${opts.out_prefix}.txt`
+      `${path.basename(filePath)}.txt`
     );
     await util.promisify(fs.writeFile)(textFilePath, finalText);
 
     res.send(
-      `File uploaded and text extracted successfully. The text file is saved as ${opts.out_prefix}.txt.`
+      `File uploaded and text extracted successfully. The text file is saved as ${path.basename(
+        filePath,
+        path.extname(filePath)
+      )}.txt.`
     );
+    return;
   } catch (error) {
     console.error(error);
     res
       .status(500)
       .send(
-        "An error occurred while extracting text from the PDF or saving the extracted text to a file."
+        "An error occurred while extracting text from the file or saving the extracted text to a file."
       );
+    return;
   }
 });
 

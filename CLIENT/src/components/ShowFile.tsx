@@ -1,21 +1,30 @@
-import { AiFillFilePdf } from "react-icons/ai";
+import {
+  AiFillFilePdf,
+  AiFillFileExcel,
+  AiFillFileWord,
+  AiFillFile,
+} from "react-icons/ai";
 import Uploader from "./Uploader";
 import { BiSolidDownload } from "react-icons/bi";
 import Highlighter from "react-highlight-words";
 
 const ShowFile = ({ results, searchParam }: any) => {
   async function downloadFile(filename: any) {
-    const response = await fetch(
-      `http://localhost:8080/download?filename=${filename}`
-    );
-    const blob = await response.blob();
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    try {
+      const response = await fetch(
+        `http://localhost:8080/download?filename=${filename}`
+      );
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -27,6 +36,28 @@ const ShowFile = ({ results, searchParam }: any) => {
       <hr className="w-11/12 border-gray-200" />
       {results.length > 0 &&
         results.map((item: any) => {
+          const fileExt = item.filename.split(".").pop();
+          let Icon;
+          let color;
+          switch (fileExt) {
+            case "pdf":
+              Icon = AiFillFilePdf;
+              color = "red";
+              break;
+            case "xlsx":
+            case "xls":
+              Icon = AiFillFileExcel;
+              color = "green";
+              break;
+            case "docx":
+            case "doc":
+              Icon = AiFillFileWord;
+              color = "blue";
+              break;
+            default:
+              Icon = AiFillFile;
+              color = "#ffc721";
+          }
           return (
             <div
               className="bg-gray-100 w-11/12 p-4 rounded-lg flex justify-between drop-shadow-md mt-2 items-center gap-2 cursor-pointer"
@@ -34,7 +65,7 @@ const ShowFile = ({ results, searchParam }: any) => {
             >
               <div className="flex items-center gap-2">
                 <div className="bg-violet-200 p-2 rounded-full">
-                  <AiFillFilePdf />
+                  <Icon color={color} />
                 </div>
 
                 <Highlighter
