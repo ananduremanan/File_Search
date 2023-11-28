@@ -4,11 +4,12 @@ import {
   AiFillFileWord,
   AiFillFile,
 } from "react-icons/ai";
+import { TbFaceIdError } from "react-icons/tb";
 import Uploader from "./Uploader";
 import { BiSolidDownload } from "react-icons/bi";
 import Highlighter from "react-highlight-words";
 
-const ShowFile = ({ results, searchParam }: any) => {
+const ShowFile = ({ results, searchParam, noSearchData }: any) => {
   async function downloadFile(filename: any) {
     try {
       const response = await fetch(
@@ -34,7 +35,15 @@ const ShowFile = ({ results, searchParam }: any) => {
         <Uploader />
       </div>
       <hr className="w-11/12 border-gray-200" />
-      {results.length > 0 &&
+      {noSearchData ? (
+        <div className="flex flex-col items-center border-dashed border-2 border-gray-200 mt-20 w-11/12 p-4">
+          <TbFaceIdError className="text-4xl text-gray-500" />
+          <div className="text-gray-500 text-center">
+            No Corresponding Files Found with the Search Keyword.
+          </div>
+        </div>
+      ) : (
+        results.length > 0 &&
         results.map((item: any) => {
           const fileExt = item.filename.split(".").pop();
           let Icon;
@@ -76,7 +85,7 @@ const ShowFile = ({ results, searchParam }: any) => {
                 />
               </div>
               <div className="text-right text-red-500 flex items-center">
-                <div className="text-gray-500 mr-2 text-xs">
+                <div className="text-gray-500 mr-2 text-xs overflow-hidden overflow-ellipsis whitespace-nowrap max-w-200">
                   {item.filename}
                 </div>
                 <BiSolidDownload
@@ -87,7 +96,8 @@ const ShowFile = ({ results, searchParam }: any) => {
               </div>
             </div>
           );
-        })}
+        })
+      )}
     </section>
   );
 };

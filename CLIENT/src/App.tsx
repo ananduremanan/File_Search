@@ -8,6 +8,7 @@ import { AiOutlineCloseCircle } from "react-icons/ai";
 export default function App() {
   const [searchParam, setSearchParam] = useState("");
   const [results, setResults] = useState([]);
+  const [noSearchData, setNoSearchData] = useState(false);
 
   const handleSearch = async () => {
     if (searchParam) {
@@ -16,8 +17,12 @@ export default function App() {
           `http://localhost:8080/search?keyword=${searchParam}`
         );
         const data = await response.json();
-        console.log(data);
-        setResults(data);
+        if (data.length === 0) {
+          setNoSearchData(true);
+        } else {
+          setResults(data);
+          setNoSearchData(false);
+        }
       } catch (error) {
         console.error(error);
       }
@@ -55,7 +60,11 @@ export default function App() {
           </button>
         </div>
       </nav>
-      <ShowFile results={results} searchParam={searchParam} />
+      <ShowFile
+        results={results}
+        searchParam={searchParam}
+        noSearchData={noSearchData}
+      />
     </main>
   );
 }
