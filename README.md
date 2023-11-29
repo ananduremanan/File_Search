@@ -2,7 +2,7 @@
 
 ### Introduction
 
-A search system designed for locating files through keyword searches, where the search functionality scans the contents of various file types such as PDFs, Excel sheets, Word documents, images, etc. The results are then indexed and displayed in the front end.
+A search system designed for locating files through keyword searches, where the search functionality scans the contents of various file types such as PDFs, Excel sheets, Word documents, images, etc. The results are then indexed and displayed in the front end. Powered by OCR even scanned pdf can also be indexed for searching.
 
 ### How to Run
 
