@@ -6,6 +6,8 @@ A search system designed for locating files through keyword searches, where the 
 
 ### How to Run
 
+##### Warning !! This Project uses the npm package [pdf-poppler](https://www.npmjs.com/package/pdf-poppler) which only supports in Windows and Mac.
+
 Clone this repository by running
 
 ```bash
